@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Analisis Risiko TI e-Raport - COBIT 2019</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #f4f6f9;
+        }
+        .hero {
+            background: linear-gradient(135deg, #1a1d29 0%, #0d6efd 100%);
+            color: white;
+            padding: 80px 0;
+        }
+        .hero-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+            height: 100%;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+        }
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 16px;
+        }
+        .tech-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin: 4px;
+        }
+        .code-block {
+            background: #1a1d29;
+            color: #d4d4d4;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        .code-block .comment { color: #6a9955; }
+        .code-block .keyword { color: #569cd6; }
+        .code-block .string { color: #ce9178; }
+        .folder-tree {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 2;
+        }
+        .folder-tree i { color: #ffc107; margin-right: 8px; }
+        .folder-tree .file i { color: #6c757d; }
+        .step-number {
+            width: 36px;
+            height: 36px;
+            background: #0d6efd;
+            color: white;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+        .login-preview {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .login-preview-header {
+            background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .login-preview-body {
+            padding: 30px;
+        }
+        .screenshot-placeholder {
+            background: #e9ecef;
+            border-radius: 8px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+        }
+        .footer {
+            background: #1a1d29;
+            color: rgba(255,255,255,0.7);
+            padding: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container text-center">
+            <div class="hero-icon">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <h1 class="display-5 fw-bold mb-3">Sistem Analisis Risiko TI e-Raport</h1>
+            <p class="lead mb-2">Menggunakan Framework COBIT 2019</p>
+            <p class="mb-4">Studi Kasus: SMKN 1 Teluk Mengkudu</p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <span class="badge bg-light text-dark fs-6 px-3 py-2">
+                    <i class="bi bi-code-slash me-2"></i>PHP Native
+                </span>
+                <span class="badge bg-light text-dark fs-6 px-3 py-2">
+                    <i class="bi bi-database me-2"></i>MySQL
+                </span>
+                <span class="badge bg-light text-dark fs-6 px-3 py-2">
+                    <i class="bi bi-bootstrap me-2"></i>Bootstrap 5
+                </span>
+                <span class="badge bg-light text-dark fs-6 px-3 py-2">
+                    <i class="bi bi-bar-chart me-2"></i>Chart.js
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h3 class="fw-bold">Teknologi yang Digunakan</h3>
+                <p class="text-muted">Stack teknologi modern untuk sistem analisis risiko</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #777bb4, #4f5b93);">
+                            <i class="bi bi-filetype-php"></i>
+                        </div>
+                        <h5>PHP Native</h5>
+                        <p class="text-muted small">Backend menggunakan PHP 8.x native tanpa framework tambahan.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #00758f, #f29111);">
+                            <i class="bi bi-database"></i>
+                        </div>
+                        <h5>MySQL Database</h5>
+                        <p class="text-muted small">Database relasional dengan PDO prepared statements untuk keamanan.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #7952b3, #6610f2);">
+                            <i class="bi bi-bootstrap"></i>
+                        </div>
+                        <h5>Bootstrap 5</h5>
+                        <p class="text-muted small">UI modern dengan Bootstrap 5, responsive di semua perangkat.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="feature-card">
+                        <div class="feature-icon" style="background: linear-gradient(135deg, #ff6384, #36a2eb);">
+                            <i class="bi bi-bar-chart-line"></i>
+                        </div>
+                        <h5>Chart.js</h5>
+                        <p class="text-muted small">Visualisasi data dengan grafik bar, radar, dan gap analysis.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="py-5 bg-white">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h3 class="fw-bold">Fitur Sistem</h3>
+                <p class="text-muted">Fitur lengkap untuk analisis risiko TI menggunakan COBIT 2019</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="step-number">1</div>
+                        </div>
+                        <div>
+                            <h5>Autentikasi & Keamanan</h5>
+                            <p class="text-muted">Login dengan session authentication, password hashing bcrypt, CSRF protection, dan SQL injection prevention.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="step-number">2</div>
+                        </div>
+                        <div>
+                            <h5>Dashboard Analytics</h5>
+                            <p class="text-muted">Dashboard modern dengan statistic cards, grafik capability level, gap analysis, dan radar chart.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="step-number">3</div>
+                        </div>
+                        <div>
+                            <h5>Framework COBIT 2019</h5>
+                            <p class="text-muted">Informasi lengkap domain DSS01 (Manage Operations) dan DSS05 (Manage Security Services).</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="step-number">4</div>
+                        </div>
+                        <div>
+                            <h5>Data Penilaian</h5>
+                            <p class="text-muted">CRUD responden, form penilaian dinamis DSS01 & DSS05 dengan skala 0-5, progress bar, dan validasi.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="step-number">5</div>
+                        </div>
+                        <div>
+                            <h5>Hasil Analisis & Rekomendasi</h5>
+                            <p class="text-muted">Perhitungan capability level otomatis, gap analysis, rekomendasi berbasis gap, dan status kondisi.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex mb-3">
+                        <div class="flex-shrink-0">
+                            <div class="step-number">6</div>
+                        </div>
+                        <div>
+                            <h5>Laporan & Export</h5>
+                            <p class="text-muted">Preview laporan lengkap, cetak PDF, dan export data ke format CSV.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Installation -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h3 class="fw-bold">Panduan Instalasi</h3>
+                <p class="text-muted">Langkah-langkah menginstal sistem pada server lokal</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-download me-2"></i>Langkah 1: Copy Project</h5>
+                    <div class="code-block mb-4">
+<span class="comment"># Copy folder project ke htdocs atau www</span>
+C:\xampp\htdocs\eraport-cobit
+                    </div>
+
+                    <h5 class="fw-bold mb-3"><i class="bi bi-database me-2"></i>Langkah 2: Buat Database</h5>
+                    <div class="code-block mb-4">
+<span class="comment">-- Login ke MySQL</span>
+mysql -u root -p
+
+<span class="comment">-- Buat database</span>
+<span class="keyword">CREATE DATABASE</span> eraport_cobit <span class="keyword">CHARACTER SET</span> utf8mb4;
+                    </div>
+
+                    <h5 class="fw-bold mb-3"><i class="bi bi-file-earmark-arrow-up me-2"></i>Langkah 3: Import Database</h5>
+                    <div class="code-block mb-4">
+<span class="comment">-- Import file database.sql</span>
+mysql -u root -p eraport_cobit &lt; database.sql
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-gear me-2"></i>Langkah 4: Konfigurasi</h5>
+                    <div class="code-block mb-4">
+<span class="comment">// Edit config/database.php</span>
+<span class="keyword">define</span>(<span class="string">'DB_HOST'</span>, <span class="string">'localhost'</span>);
+<span class="keyword">define</span>(<span class="string">'DB_USERNAME'</span>, <span class="string">'root'</span>);
+<span class="keyword">define</span>(<span class="string">'DB_PASSWORD'</span>, <span class="string">''</span>);
+<span class="keyword">define</span>(<span class="string">'DB_NAME'</span>, <span class="string">'eraport_cobit'</span>);
+<span class="keyword">define</span>(<span class="string">'BASE_URL'</span>, <span class="string">'http://localhost/eraport-cobit'</span>);
+                    </div>
+
+                    <h5 class="fw-bold mb-3"><i class="bi bi-box-arrow-in-right me-2"></i>Langkah 5: Akses Aplikasi</h5>
+                    <div class="code-block mb-4">
+<span class="comment">-- Buka browser</span>
+http://localhost/eraport-cobit
+
+<span class="comment">-- Login default</span>
+Username: admin
+Password: password
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Catatan:</strong> Sistem ini memerlukan server PHP dan MySQL. 
+                        Gunakan XAMPP, WAMP, atau LAMP untuk menjalankan sistem.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Preview -->
+    <section class="py-5 bg-white">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h3 class="fw-bold">Preview Login</h3>
+                <p class="text-muted">Tampilan halaman login sistem</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-5">
+                    <div class="login-preview">
+                        <div class="login-preview-header">
+                            <i class="bi bi-shield-check" style="font-size: 48px;"></i>
+                            <h4 class="mt-3 mb-1">Sistem Analisis Risiko TI</h4>
+                            <p class="mb-0">e-Raport menggunakan COBIT 2019</p>
+                            <small>SMKN 1 Teluk Mengkudu</small>
+                        </div>
+                        <div class="login-preview-body">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control" placeholder="Username" disabled>
+                                <label><i class="bi bi-person me-2"></i>Username</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="password" class="form-control" placeholder="Password" disabled>
+                                <label><i class="bi bi-lock me-2"></i>Password</label>
+                            </div>
+                            <button class="btn btn-primary w-100" disabled>
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Database Schema -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h3 class="fw-bold">Skema Database</h3>
+                <p class="text-muted">7 tabel utama dengan relasi foreign key</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="feature-card">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Tabel</th>
+                                        <th>Deskripsi</th>
+                                        <th>Records (Default)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td><code>users</code></td><td>Data pengguna admin</td><td>1 user</td></tr>
+                                    <tr><td><code>respondents</code></td><td>Data responden penilaian</td><td>6 responden</td></tr>
+                                    <tr><td><code>processes</code></td><td>Domain COBIT (DSS01, DSS05)</td><td>2 domain</td></tr>
+                                    <tr><td><code>assessment_questions</code></td><td>Pertanyaan penilaian</td><td>12 pertanyaan</td></tr>
+                                    <tr><td><code>assessment_answers</code></td><td>Jawaban penilaian</td><td>36 jawaban</td></tr>
+                                    <tr><td><code>results</code></td><td>Hasil perhitungan</td><td>6 hasil</td></tr>
+                                    <tr><td><code>design_factors</code></td><td>Design factor COBIT</td><td>5 design factor</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Structure -->
+    <section class="py-5 bg-white">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h3 class="fw-bold">Struktur Folder</h3>
+                <p class="text-muted">Arsitektur modular dengan pola MVC</p>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-lg-6">
+                    <div class="feature-card">
+                        <div class="folder-tree">
+                            <div><i class="bi bi-folder-fill"></i>config/ <span class="text-muted">// Konfigurasi database</span></div>
+                            <div><i class="bi bi-folder-fill"></i>controllers/ <span class="text-muted">// Logika bisnis</span></div>
+                            <div><i class="bi bi-folder-fill"></i>models/ <span class="text-muted">// Model data</span></div>
+                            <div><i class="bi bi-folder-fill"></i>views/ <span class="text-muted">// Tampilan UI</span></div>
+                            <div style="padding-left: 20px;"><i class="bi bi-folder-fill"></i>layouts/ <span class="text-muted">// Template layout</span></div>
+                            <div style="padding-left: 20px;"><i class="bi bi-folder-fill"></i>auth/ <span class="text-muted">// Halaman login</span></div>
+                            <div style="padding-left: 20px;"><i class="bi bi-folder-fill"></i>dashboard/ <span class="text-muted">// Halaman dashboard</span></div>
+                            <div style="padding-left: 20px;"><i class="bi bi-folder-fill"></i>framework/ <span class="text-muted">// Framework COBIT</span></div>
+                            <div style="padding-left: 20px;"><i class="bi bi-folder-fill"></i>penilaian/ <span class="text-muted">// Data penilaian</span></div>
+                            <div style="padding-left: 20px;"><i class="bi bi-folder-fill"></i>analisis/ <span class="text-muted">// Hasil analisis</span></div>
+                            <div style="padding-left: 20px;"><i class="bi bi-folder-fill"></i>laporan/ <span class="text-muted">// Laporan</span></div>
+                            <div><i class="bi bi-folder-fill"></i>assets/ <span class="text-muted">// CSS, JS, Images</span></div>
+                            <div><i class="bi bi-folder-fill"></i>helpers/ <span class="text-muted">// Fungsi bantuan</span></div>
+                            <div><i class="bi bi-folder-fill"></i>uploads/ <span class="text-muted">// File uploads</span></div>
+                            <div class="file"><i class="bi bi-file-earmark-text"></i>index.php <span class="text-muted">// Router utama</span></div>
+                            <div class="file"><i class="bi bi-file-earmark-text"></i>database.sql <span class="text-muted">// Schema & seeder</span></div>
+                            <div class="file"><i class="bi bi-file-earmark-text"></i>.htaccess <span class="text-muted">// Rewrite rules</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <h5 class="text-white mb-3">
+                <i class="bi bi-shield-check me-2"></i>Sistem Analisis Risiko TI e-Raport
+            </h5>
+            <p class="mb-2">Menggunakan Framework COBIT 2019 | SMKN 1 Teluk Mengkudu</p>
+            <p class="mb-0">
+                <small>Domain: DSS01 - Manage Operations | DSS05 - Manage Security Services</small>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
