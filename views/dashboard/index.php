@@ -58,7 +58,7 @@
     <div class="col-xl-3 col-md-6">
         <div class="stat-card stat-card-orange">
             <div class="stat-icon">
-                <i class="bi bi-shield-question"></i>
+                <i class="bi bi-question-circle"></i>
             </div>
             <div class="stat-info">
                 <h3 class="stat-number"><?= $totalQuestionsDSS05 ?></h3>
