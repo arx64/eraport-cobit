@@ -384,7 +384,9 @@ body {
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    background: #f8f9fa;
+    /* background: #f8f9fa; */
+    background: #0d6efd;
+    color: white;
     border-top: none;
 }
 
