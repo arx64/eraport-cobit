@@ -9,7 +9,8 @@ $currentPage = currentPage();
 <div class="sidebar" id="sidebar">
     <div class="sidebar-brand">
         <div class="brand-logo">
-            <i class="bi bi-shield-check"></i>
+            <!-- <i class="bi bi-shield-check"></i> -->
+             <img src="assets/img/logo-smk.jpeg" alt="Logo SMK" width="40" height="40" class="rounded-circle">
         </div>
         <div class="brand-text">
             <h5 class="mb-0">e-Raport COBIT</h5>
