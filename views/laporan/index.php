@@ -18,9 +18,9 @@
                 <a href="<?= BASE_URL ?>/laporan/pdf" class="btn btn-danger" target="_blank">
                     <i class="bi bi-file-earmark-pdf me-1"></i>Cetak PDF
                 </a>
-                <a href="<?= BASE_URL ?>/laporan/export?type=csv" class="btn btn-success">
+                <!-- <a href="<?= BASE_URL ?>/laporan/export?type=csv" class="btn btn-success">
                     <i class="bi bi-file-earmark-excel me-1"></i>Export CSV
-                </a>
+                </a> -->
             </div>
         </div>
     </div>
