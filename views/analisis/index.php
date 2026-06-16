@@ -14,14 +14,40 @@
             </h4>
             <p class="text-muted mb-0">Analisis capability level dan rekomendasi</p>
         </div>
+        <div class="col-auto">
+            <form method="GET" class="d-flex align-items-center gap-2" id="dateFilterForm">
+                <input type="hidden" name="process_id" value="<?= $processId ?>">
+                <input type="hidden" name="respondent_id" value="<?= $respondentId ?>">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                    <input type="text" class="form-control" name="tanggal" id="tanggal" 
+                           value="<?= sanitize($tanggal) ?>">
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Tampilkan</button>
+            </form>
+        </div>
     </div>
 </div>
+
+<script>
+const datesWithData = <?= json_encode(array_map(fn($d) => $d['tanggal'], $datesWithData)) ?>;
+const tanggalInput = document.getElementById('tanggal');
+flatpickr(tanggalInput, {
+    dateFormat: 'Y-m-d',
+    defaultDate: '<?= $tanggal ?>',
+    enable: datesWithData,
+    locale: 'id',
+    onChange: function(selectedDates, dateStr, instance) {
+        document.getElementById('dateFilterForm').submit();
+    }
+});
+</script>
 
 <!-- Capability Level Cards -->
 <div class="row g-4 mb-4">
     <?php foreach ($aggregateResults as $result):
         $rataRata = (float) ($result['avg_rata_rata'] ?? 0);
-        $gap = (float) ($result['avg_gap'] ?? 4);
+        $gap = (float) ($result['avg_gap'] ?? TARGET_LEVEL);
         $cardClass = $result['kode_domain'] === 'DSS01' ? 'border-primary' : 'border-success';
         $headerClass = $result['kode_domain'] === 'DSS01' ? 'bg-primary' : 'bg-success';
     ?>
@@ -35,7 +61,7 @@
                         </div>
                         <div class="capability-score">
                             <span class="score-value"><?= number_format($rataRata, 2) ?></span>
-                            <span class="score-max">/ 4</span>
+                            <span class="score-max">/ 5</span>
                         </div>
                     </div>
                 </div>
@@ -52,7 +78,7 @@
                         <div class="col-4">
                             <div class="metric-item">
                                 <span class="metric-label">Target Level</span>
-                                <span class="metric-value badge bg-primary">Managed and Measurable</span>
+                                <span class="metric-value badge bg-primary"><?= number_format(TARGET_LEVEL, 2) ?> - <?= getCapabilityLabel(TARGET_LEVEL) ?></span>
                             </div>
                         </div>
                         <div class="col-4">
@@ -185,7 +211,7 @@
                 <?php foreach ($recommendations as $domain => $recommendationList):
                     $processData = array_filter($aggregateResults, fn($r) => $r['kode_domain'] === $domain);
                     $processData = array_values($processData)[0] ?? null;
-                    $gap = (float) ($processData['avg_gap'] ?? 4);
+                    $gap = (float) ($processData['avg_gap'] ?? TARGET_LEVEL);
                     $badgeClass = getGapBadge($gap);
                 ?>
                     <div class="recommendation-domain mb-4">
@@ -272,7 +298,7 @@
                 },
                 {
                     label: 'Target Level',
-                    data: [4, 4],
+                    data: Array(<?= count($aggregateResults) ?>).fill(<?= TARGET_LEVEL ?>),
                     backgroundColor: 'rgba(25, 135, 84, 0.3)',
                     borderColor: 'rgba(25, 135, 84, 1)',
                     borderWidth: 2,
@@ -306,8 +332,8 @@
                     label: 'DSS01',
                     data: [
                         <?= number_format((float)($aggregateResults[0]['avg_rata_rata'] ?? 0), 2, '.', '') ?>,
-                        4,
-                        4 - <?= number_format((float)($aggregateResults[0]['avg_rata_rata'] ?? 0), 2, '.', '') ?>
+                        <?= TARGET_LEVEL ?>,
+                        <?= TARGET_LEVEL ?> - <?= number_format((float)($aggregateResults[0]['avg_rata_rata'] ?? 0), 2, '.', '') ?>
                     ],
                     backgroundColor: 'rgba(13, 110, 253, 0.2)',
                     borderColor: 'rgba(13, 110, 253, 1)',
@@ -317,8 +343,8 @@
                     label: 'DSS05',
                     data: [
                         <?= number_format((float)($aggregateResults[1]['avg_rata_rata'] ?? 0), 2, '.', '') ?>,
-                        4,
-                        4 - <?= number_format((float)($aggregateResults[1]['avg_rata_rata'] ?? 0), 2, '.', '') ?>
+                        <?= TARGET_LEVEL ?>,
+                        <?= TARGET_LEVEL ?> - <?= number_format((float)($aggregateResults[1]['avg_rata_rata'] ?? 0), 2, '.', '') ?>
                     ],
                     backgroundColor: 'rgba(25, 135, 84, 0.2)',
                     borderColor: 'rgba(25, 135, 84, 1)',

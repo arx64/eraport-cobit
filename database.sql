@@ -36,6 +36,7 @@ CREATE TABLE processes (
     nama_domain VARCHAR(100) NOT NULL,
     deskripsi TEXT NOT NULL,
     tujuan TEXT NOT NULL,
+    aktif TINYINT(1) DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 

@@ -26,13 +26,21 @@ class LaporanController {
     public function index(): void {
         requireLogin();
         
+        $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
+        $datesWithData = $this->resultModel->getDatesWithData();
+        $aggregateResults = $this->resultModel->getAggregateByProcess($tanggal);
+        $allResults = $this->resultModel->getAll($tanggal);
+        $statistics = $this->resultModel->getStatistics($tanggal);
+        
         $data = [
             'title' => 'Laporan',
-            'aggregateResults' => $this->resultModel->getAggregateByProcess(),
-            'allResults' => $this->resultModel->getAll(),
-            'statistics' => $this->resultModel->getStatistics(),
+            'aggregateResults' => $aggregateResults,
+            'allResults' => $allResults,
+            'statistics' => $statistics,
             'respondents' => $this->respondentModel->getAll(),
-            'processes' => $this->processModel->getAll()
+            'processes' => $this->processModel->getAll(),
+            'tanggal' => $tanggal,
+            'datesWithData' => $datesWithData
         ];
         
         // Generate rekomendasi
@@ -56,10 +64,12 @@ class LaporanController {
     public function pdf(): void {
         requireLogin();
         
+        $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
+        
         // Load data
-        $aggregateResults = $this->resultModel->getAggregateByProcess();
-        $allResults = $this->resultModel->getAll();
-        $statistics = $this->resultModel->getStatistics();
+        $aggregateResults = $this->resultModel->getAggregateByProcess($tanggal);
+        $allResults = $this->resultModel->getAll($tanggal);
+        $statistics = $this->resultModel->getStatistics($tanggal);
         $respondents = $this->respondentModel->getAll();
         $processes = $this->processModel->getAll();
         
@@ -83,50 +93,23 @@ class LaporanController {
             'respondents' => $respondents,
             'processes' => $processes,
             'recommendations' => $recommendations,
-            'tanggal' => date('d F Y'),
+            'tanggal' => date('d F Y', strtotime($tanggal)),
             'tahun' => date('Y')
         ];
-
-        // Set header untuk download PDF
-        // header('Content-Type: application/pdf');
-        // header('Content-Disposition: attachment; filename="laporan-analisis-risiko-eraport-' . date('Ymd') . '.pdf"');
-
-        // Generate HTML untuk PDF
+        
         ob_start();
-
         view("laporan/pdf", $data, false);
-
         $html = ob_get_clean();
-
+        
         $dompdf = new \Dompdf\Dompdf();
-
         $dompdf->loadHtml($html);
-
         $dompdf->setPaper('A4', 'portrait');
-
         $dompdf->render();
-
         $dompdf->stream(
             'laporan-analisis-risiko-eraport-' . date('Ymd') . '.pdf',
             ['Attachment' => true]
         );
-
         exit;
-        // ob_start();
-        // view("laporan/pdf", $data, false);
-        // $html = ob_get_clean();
-        
-        // // Gunakan Dompdf jika tersedia, jika tidak tampilkan HTML
-        // if (class_exists('Dompdf\Dompdf')) {
-        //     $dompdf = new \Dompdf\Dompdf();
-        //     $dompdf->loadHtml($html);
-        //     $dompdf->setPaper('A4', 'portrait');
-        //     $dompdf->render();
-        //     $dompdf->stream('laporan-analisis-risiko-eraport-' . date('Ymd') . '.pdf');
-        // } else {
-        //     // Fallback: tampilkan sebagai HTML printable
-        //     echo $html;
-        // }
     }
     
     /**
@@ -136,8 +119,9 @@ class LaporanController {
         requireLogin();
         
         $type = $_GET['type'] ?? 'csv';
+        $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
         
-        $results = $this->resultModel->getAll();
+        $results = $this->resultModel->getAll($tanggal);
         
         if ($type === 'csv') {
             header('Content-Type: text/csv; charset=utf-8');
@@ -146,12 +130,13 @@ class LaporanController {
             $output = fopen('php://output', 'w');
             
             // Header
-            fputcsv($output, ['No', 'Responden', 'Jabatan', 'Domain', 'Total Nilai', 'Rata-rata', 'Capability Level', 'Current Level', 'Target Level', 'Gap', 'Status']);
+            fputcsv($output, ['No', 'Tanggal', 'Responden', 'Jabatan', 'Domain', 'Total Nilai', 'Rata-rata', 'Capability Level', 'Current Level', 'Target Level', 'Gap', 'Status']);
             
             // Data
             foreach ($results as $i => $result) {
                 fputcsv($output, [
                     $i + 1,
+                    $tanggal,
                     $result['respondent_name'],
                     $result['jabatan'],
                     $result['kode_domain'] . ' - ' . $result['nama_domain'],

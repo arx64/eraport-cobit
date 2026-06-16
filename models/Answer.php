@@ -100,19 +100,26 @@ class Answer {
     
     /**
      * Get total answers count
+     * @param string|null $tanggal Optional date filter (Y-m-d)
      * @return int
      */
-    public function getTotal(): int {
-        $stmt = $this->db->query("SELECT COUNT(*) as total FROM assessment_answers");
+    public function getTotal(?string $tanggal = null): int {
+        if ($tanggal) {
+            $stmt = $this->db->prepare("SELECT COUNT(*) as total FROM assessment_answers WHERE DATE(created_at) = ?");
+            $stmt->execute([$tanggal]);
+        } else {
+            $stmt = $this->db->query("SELECT COUNT(*) as total FROM assessment_answers");
+        }
         return (int) $stmt->fetch()['total'];
     }
     
     /**
      * Get answers summary for dashboard
+     * @param string|null $tanggal Optional date filter (Y-m-d)
      * @return array
      */
-    public function getSummary(): array {
-        $stmt = $this->db->query("
+    public function getSummary(?string $tanggal = null): array {
+        $sql = "
             SELECT 
                 aq.process_id,
                 p.kode_domain,
@@ -121,8 +128,26 @@ class Answer {
             FROM assessment_answers aa
             JOIN assessment_questions aq ON aa.question_id = aq.id
             JOIN processes p ON aq.process_id = p.id
-            GROUP BY aq.process_id, p.kode_domain
-        ");
+        ";
+        if ($tanggal) {
+            $sql .= " WHERE DATE(aa.created_at) = ?";
+        }
+        $sql .= " GROUP BY aq.process_id, p.kode_domain";
+        
+        $stmt = $this->db->prepare($sql);
+        if ($tanggal) {
+            $stmt->execute([$tanggal]);
+        } else {
+            $stmt->execute();
+        }
         return $stmt->fetchAll();
+    }
+
+    /**
+     * Delete all answers
+     * @return bool
+     */
+    public function deleteAll(): bool {
+        return $this->db->query("DELETE FROM assessment_answers") !== false;
     }
 }

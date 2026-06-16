@@ -202,7 +202,7 @@
                 <?php foreach ($aggregateResults as $i => $result):
 
                     $rataRata = (float) ($result['avg_rata_rata'] ?? 0);
-                    $gap = (float) ($result['avg_gap'] ?? 4);
+                    $gap = (float) ($result['avg_gap'] ?? TARGET_LEVEL);
 
                 ?>
 
@@ -227,7 +227,7 @@
                         </td>
 
                         <td class="text-center">
-                            4
+                            <?= TARGET_LEVEL ?>
                         </td>
 
                         <td class="text-center">

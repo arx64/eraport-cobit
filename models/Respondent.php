@@ -17,7 +17,7 @@ class Respondent {
      * @return array
      */
     public function getAll(): array {
-        $stmt = $this->db->query("SELECT * FROM respondents ORDER BY created_at DESC");
+        $stmt = $this->db->query("SELECT * FROM respondents ORDER BY nama ASC");
         return $stmt->fetchAll();
     }
     

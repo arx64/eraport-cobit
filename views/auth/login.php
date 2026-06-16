@@ -22,7 +22,7 @@
             <div class="login-header">
                 <div class="login-icon">
                     <!-- <i class="bi bi-shield-check"></i> -->
-                     <img src="assets/img/logo-smk.jpeg" alt="Logo SMKN 1 Teluk Mengkudu" width="100%">
+                     <img src="<?= BASE_URL ?>/assets/img/logo-smk.jpeg" alt="Logo SMKN 1 Teluk Mengkudu" width="100%">
                 </div>
                 <h3>Sistem Analisis Risiko TI</h3>
                 <p class="mb-0">e-Raport menggunakan COBIT 2019</p>

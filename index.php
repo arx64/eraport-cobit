@@ -33,7 +33,10 @@ $routes = [
     
     // Design Factor
     'design-factor' => ['DesignFactorController', 'index'],
-    
+    'design-factor/save' => ['DesignFactorController', 'save'],
+    'design-factor/update' => ['DesignFactorController', 'update'],
+    'design-factor/delete' => ['DesignFactorController', 'delete'],
+
     // Data Penilaian
     'penilaian/responden' => ['PenilaianController', 'responden'],
     'penilaian/save-responden' => ['PenilaianController', 'saveResponden'],
@@ -43,6 +46,13 @@ $routes = [
     'penilaian/dss05' => ['PenilaianController', 'dss05'],
     'penilaian/save-penilaian' => ['PenilaianController', 'savePenilaian'],
     'penilaian/delete-penilaian' => ['PenilaianController', 'deletePenilaian'],
+    
+    // Data Pertanyaan
+    'pertanyaan' => ['QuestionController', 'index'],
+    'pertanyaan/save' => ['QuestionController', 'save'],
+    'pertanyaan/update' => ['QuestionController', 'update'],
+    'pertanyaan/delete' => ['QuestionController', 'delete'],
+    'pertanyaan/reset-all' => ['QuestionController', 'resetAll'],
     
     // Hasil Analisis
     'analisis' => ['AnalisisController', 'index'],

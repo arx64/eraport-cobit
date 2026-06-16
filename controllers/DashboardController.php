@@ -27,15 +27,20 @@ class DashboardController {
     public function index(): void {
         requireLogin();
         
+        $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
+        $datesWithData = $this->resultModel->getDatesWithData();
+        
         $data = [
             'title' => 'Dashboard',
             'totalResponden' => $this->respondentModel->getTotal(),
             'totalQuestionsDSS01' => $this->questionModel->getTotalByProcessId(1),
             'totalQuestionsDSS05' => $this->questionModel->getTotalByProcessId(2),
-            'totalPenilaian' => $this->answerModel->getTotal(),
-            'aggregateResults' => $this->resultModel->getAggregateByProcess(),
-            'statistics' => $this->resultModel->getStatistics(),
-            'answerSummary' => $this->answerModel->getSummary()
+            'totalPenilaian' => $this->answerModel->getTotal($tanggal),
+            'aggregateResults' => $this->resultModel->getAggregateByProcess($tanggal),
+            'statistics' => $this->resultModel->getStatistics($tanggal),
+            'answerSummary' => $this->answerModel->getSummary($tanggal),
+            'tanggal' => $tanggal,
+            'datesWithData' => $datesWithData
         ];
         
         view("dashboard/index", $data);

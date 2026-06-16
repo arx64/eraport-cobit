@@ -14,13 +14,18 @@
             <p class="text-muted mb-0">Cetak dan export laporan analisis</p>
         </div>
         <div class="col-auto">
-            <div class="btn-group">
-                <a href="<?= BASE_URL ?>/laporan/pdf" class="btn btn-danger" target="_blank">
+            <div class="d-flex align-items-center gap-2">
+                <form method="GET" class="d-flex align-items-center gap-2" id="dateFilterForm">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                        <input type="text" class="form-control" name="tanggal" id="tanggal" 
+                               value="<?= sanitize($tanggal) ?>">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Tampilkan</button>
+                </form>
+                <a href="<?= BASE_URL ?>/laporan/pdf?tanggal=<?= sanitize($tanggal) ?>" class="btn btn-danger" target="_blank">
                     <i class="bi bi-file-earmark-pdf me-1"></i>Cetak PDF
                 </a>
-                <!-- <a href="<?= BASE_URL ?>/laporan/export?type=csv" class="btn btn-success">
-                    <i class="bi bi-file-earmark-excel me-1"></i>Export CSV
-                </a> -->
             </div>
         </div>
     </div>
@@ -90,7 +95,7 @@
                         <tbody>
                             <?php foreach ($aggregateResults as $result): 
                                 $rataRata = (float) ($result['avg_rata_rata'] ?? 0);
-                                $gap = (float) ($result['avg_gap'] ?? 4);
+                                $gap = (float) ($result['avg_gap'] ?? TARGET_LEVEL);
                             ?>
                             <tr>
                                 <td>
@@ -99,7 +104,7 @@
                                 </td>
                                 <td class="text-center"><?= number_format($rataRata, 2) ?></td>
                                 <td class="text-center"><?= getCapabilityLabel($rataRata) ?></td>
-                                <td class="text-center">Managed and Measurable (4)</td>
+                                <td class="text-center"><?= getCapabilityLabel(TARGET_LEVEL) ?> (<?= TARGET_LEVEL ?>)</td>
                                 <td class="text-center"><?= number_format($gap, 2) ?></td>
                                 <td class="text-center"><?= getGapStatus($gap) ?></td>
                             </tr>
@@ -153,6 +158,19 @@
     </div>
 </div>
 
+<script>
+const laporanDatesWithData = <?= json_encode(array_map(fn($d) => $d['tanggal'], $datesWithData)) ?>;
+const laporanTanggalInput = document.getElementById('tanggal');
+flatpickr(laporanTanggalInput, {
+    dateFormat: 'Y-m-d',
+    defaultDate: '<?= $tanggal ?>',
+    enable: laporanDatesWithData,
+    locale: 'id',
+    onChange: function(selectedDates, dateStr, instance) {
+        document.getElementById('dateFilterForm').submit();
+    }
+});
+</script>
 <script>
 // Report Charts
 const repCapCtx = document.getElementById('reportCapabilityChart').getContext('2d');

@@ -14,9 +14,14 @@
             <p class="text-muted mb-0">Ringkasan analisis risiko TI e-Raport</p>
         </div>
         <div class="col-auto">
-            <span class="badge bg-primary">
-                <i class="bi bi-calendar3 me-1"></i><?= formatDate(date('Y-m-d')) ?>
-            </span>
+            <form method="GET" class="d-flex align-items-center gap-2" id="dateFilterForm">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                    <input type="text" class="form-control" name="tanggal" id="tanggal" 
+                           value="<?= sanitize($tanggal) ?>">
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">Tampilkan</button>
+            </form>
         </div>
     </div>
 </div>
@@ -78,7 +83,7 @@
             </div>
             <div class="stat-info">
                 <h3 class="stat-number"><?= $totalPenilaian ?></h3>
-                <p class="stat-label">Total Penilaian</p>
+                <p class="stat-label">Total Penilaian (<?= formatDate($tanggal) ?>)</p>
             </div>
             <div class="stat-chart">
                 <div class="stat-trend">
@@ -132,7 +137,7 @@
     <div class="col-12">
         <div class="table-card">
             <div class="table-header">
-                <h5><i class="bi bi-table me-2"></i>Ringkasan Hasil Analisis</h5>
+                <h5><i class="bi bi-table me-2"></i>Ringkasan Hasil Analisis (<?= formatDate($tanggal) ?>)</h5>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover">
@@ -148,7 +153,7 @@
                     </thead>
                     <tbody>
                         <?php foreach ($aggregateResults as $result): 
-                            $gap = (float) ($result['avg_gap'] ?? 4);
+                            $gap = (float) ($result['avg_gap'] ?? TARGET_LEVEL);
                             $rataRata = (float) ($result['avg_rata_rata'] ?? 0);
                         ?>
                         <tr>
@@ -162,7 +167,7 @@
                                 </span>
                             </td>
                             <td class="text-center">
-                                <span class="badge bg-primary">4.00 - Managed and Measurable</span>
+                                <span class="badge bg-primary"><?= number_format(TARGET_LEVEL, 2) ?> - <?= getCapabilityLabel(TARGET_LEVEL) ?></span>
                             </td>
                             <td class="text-center">
                                 <span class="badge <?= getGapBadge($gap) ?>">
@@ -182,6 +187,21 @@
         </div>
     </div>
 </div>
+
+<script>
+const datesWithData = <?= json_encode(array_map(fn($d) => $d['tanggal'], $datesWithData)) ?>;
+
+const tanggalInput = document.getElementById('tanggal');
+flatpickr(tanggalInput, {
+    dateFormat: 'Y-m-d',
+    defaultDate: '<?= $tanggal ?>',
+    enable: datesWithData,
+    locale: 'id',
+    onChange: function(selectedDates, dateStr, instance) {
+        document.getElementById('dateFilterForm').submit();
+    }
+});
+</script>
 
 <script>
 // Capability Level Chart
@@ -278,8 +298,8 @@ new Chart(radarCtx, {
                 label: 'DSS01 - Manage Operations',
                 data: [
                     <?= (float) ($aggregateResults[0]['avg_rata_rata'] ?? 0) ?>,
-                    4,
-                    4 - <?= (float) ($aggregateResults[0]['avg_rata_rata'] ?? 0) ?>,
+                    <?= TARGET_LEVEL ?>,
+                    <?= TARGET_LEVEL ?> - <?= (float) ($aggregateResults[0]['avg_rata_rata'] ?? 0) ?>,
                     <?= (float) ($aggregateResults[0]['avg_rata_rata'] ?? 0) ?>
                 ],
                 backgroundColor: 'rgba(13, 110, 253, 0.2)',
@@ -291,8 +311,8 @@ new Chart(radarCtx, {
                 label: 'DSS05 - Manage Security Services',
                 data: [
                     <?= (float) ($aggregateResults[1]['avg_rata_rata'] ?? 0) ?>,
-                    4,
-                    4 - <?= (float) ($aggregateResults[1]['avg_rata_rata'] ?? 0) ?>,
+                    <?= TARGET_LEVEL ?>,
+                    <?= TARGET_LEVEL ?> - <?= (float) ($aggregateResults[1]['avg_rata_rata'] ?? 0) ?>,
                     <?= (float) ($aggregateResults[1]['avg_rata_rata'] ?? 0) ?>
                 ],
                 backgroundColor: 'rgba(25, 135, 84, 0.2)',

@@ -10,7 +10,7 @@ $currentPage = currentPage();
     <div class="sidebar-brand">
         <div class="brand-logo">
             <!-- <i class="bi bi-shield-check"></i> -->
-             <img src="assets/img/logo-smk.jpeg" alt="Logo SMK" width="40" height="40" class="rounded-circle">
+             <img src="<?= BASE_URL ?>/assets/img/logo-smk.jpeg" alt="Logo SMK" width="40" height="40" class="rounded-circle">
         </div>
         <div class="brand-text">
             <h5 class="mb-0">e-Raport COBIT</h5>
@@ -51,20 +51,27 @@ $currentPage = currentPage();
             
             <!-- Data Penilaian -->
             <li class="nav-item">
-                <a class="nav-link <?= in_array($currentPage, ['responden', 'dss01', 'dss05']) ? 'active' : '' ?>" 
+                <a class="nav-link <?= in_array($currentPage, ['responden', 'pertanyaan', 'dss01', 'dss05']) ? 'active' : '' ?>" 
                    data-bs-toggle="collapse" href="#penilaianSubmenu" role="button"
-                   aria-expanded="<?= in_array($currentPage, ['responden', 'dss01', 'dss05']) ? 'true' : 'false' ?>">
+                   aria-expanded="<?= in_array($currentPage, ['responden', 'pertanyaan', 'dss01', 'dss05']) ? 'true' : 'false' ?>">
                     <i class="bi bi-pencil-square"></i>
                     <span>Data Penilaian</span>
                     <i class="bi bi-chevron-down ms-auto"></i>
                 </a>
-                <div class="collapse <?= in_array($currentPage, ['responden', 'dss01', 'dss05']) ? 'show' : '' ?>" id="penilaianSubmenu">
+                <div class="collapse <?= in_array($currentPage, ['responden', 'pertanyaan', 'dss01', 'dss05']) ? 'show' : '' ?>" id="penilaianSubmenu">
                     <ul class="nav flex-column submenu">
                         <li>
                             <a class="nav-link <?= $currentPage === 'responden' ? 'active' : '' ?>" 
                                href="<?= BASE_URL ?>/penilaian/responden">
                                 <i class="bi bi-people"></i>
                                 <span>Data Responden</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="nav-link <?= $currentPage === 'pertanyaan' ? 'active' : '' ?>" 
+                               href="<?= BASE_URL ?>/pertanyaan">
+                                <i class="bi bi-question-circle"></i>
+                                <span>Data Pertanyaan</span>
                             </a>
                         </li>
                         <li>

@@ -8,6 +8,8 @@ session_start();
 
 require_once __DIR__ . '/../config/database.php';
 
+define('TARGET_LEVEL', 5);
+
 /**
  * Redirect ke URL tertentu
  * @param string $path Path tujuan
@@ -349,8 +351,8 @@ function calculateCapabilityLevel(int $respondentId, int $processId): array {
             'rata_rata' => 0,
             'capability_level' => 0,
             'current_level' => 'Non-existent',
-            'target_level' => 4,
-            'gap' => 4,
+            'target_level' => TARGET_LEVEL,
+            'gap' => $gap,
             'status' => 'Sangat Kurang'
         ];
     }
@@ -358,7 +360,7 @@ function calculateCapabilityLevel(int $respondentId, int $processId): array {
     $rataRata = round($totalNilai / $jumlahPertanyaan, 2);
     $capabilityLevel = round($rataRata / 5, 2); // Normalisasi ke skala 0-1
     $currentLevel = getCapabilityLabel($rataRata);
-    $targetLevel = 4;
+    $targetLevel = TARGET_LEVEL;
     $gap = round($targetLevel - $rataRata, 2);
     $status = getGapStatus($gap);
     
