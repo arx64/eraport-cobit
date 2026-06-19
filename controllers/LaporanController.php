@@ -27,7 +27,7 @@ class LaporanController {
         requireLogin();
         
         $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
-        $datesWithData = $this->resultModel->getDatesWithData();
+        $datesWithData = $this->resultModel->getAllDatesWithData();
         $aggregateResults = $this->resultModel->getAggregateByProcess($tanggal);
         $allResults = $this->resultModel->getAll($tanggal);
         $statistics = $this->resultModel->getStatistics($tanggal);

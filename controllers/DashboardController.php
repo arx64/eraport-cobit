@@ -28,7 +28,7 @@ class DashboardController {
         requireLogin();
         
         $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
-        $datesWithData = $this->resultModel->getDatesWithData();
+        $datesWithData = $this->resultModel->getAllDatesWithData();
         
         $data = [
             'title' => 'Dashboard',
@@ -44,5 +44,15 @@ class DashboardController {
         ];
         
         view("dashboard/index", $data);
+    }
+
+    /**
+     * AJAX endpoint: kembalikan daftar tanggal yang punya data (JSON)
+     */
+    public function apiDatesWithData(): void {
+        requireLogin();
+        header('Content-Type: application/json');
+        echo json_encode($this->resultModel->getAllDatesWithData());
+        exit;
     }
 }

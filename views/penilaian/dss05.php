@@ -15,6 +15,9 @@
             <p class="text-muted mb-0">Manage Security Services - Kelola penilaian domain keamanan</p>
         </div>
         <div class="col-auto">
+            <span class="badge bg-light text-dark border me-2">
+                <i class="bi bi-calendar-event me-1"></i><?= formatDate($today) ?>
+            </span>
             <a href="<?= BASE_URL ?>/penilaian/responden" class="btn btn-secondary btn-sm">
                 <i class="bi bi-arrow-left me-1"></i>Kembali
             </a>
@@ -44,6 +47,52 @@
         </div>
     </div>
 </div>
+
+<!-- Info Penilaian Harian -->
+<?php if ($respondentId): ?>
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="alert alert-info d-flex align-items-start" role="alert">
+                <i class="bi bi-calendar-check fs-4 me-3 mt-1"></i>
+                <div class="flex-grow-1">
+                    <h6 class="alert-heading mb-1">Penilaian Harian - <?= formatDate($today) ?></h6>
+                    <p class="mb-0 small">
+                        Penilaian disimpan berdasarkan tanggal pengisian. 
+                        Setiap hari formulir akan kosong dan responden dapat mengisi ulang penilaian.
+                        Data penilaian pada hari sebelumnya tetap tersimpan dan tidak hilang.
+                    </p>
+                </div>
+            </div>
+
+            <?php if (!empty($historyDates)): ?>
+                <div class="alert alert-secondary d-flex align-items-start" role="alert">
+                    <i class="bi bi-clock-history fs-4 me-3 mt-1"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="alert-heading mb-1">Riwayat Penilaian Tersimpan</h6>
+                        <p class="mb-1 small">Responden ini telah mengisi penilaian pada tanggal:</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <?php foreach ($historyDates as $hd): ?>
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-calendar3 me-1"></i><?= formatDate($hd) ?>
+                                </span>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($hasTodayData): ?>
+                <div class="alert alert-success d-flex align-items-start" role="alert">
+                    <i class="bi bi-check-circle fs-4 me-3 mt-1"></i>
+                    <div class="flex-grow-1">
+                        <h6 class="alert-heading mb-1">Penilaian Hari Ini Sudah Diisi</h6>
+                        <p class="mb-0 small">Berikut adalah jawaban yang telah disimpan hari ini. Anda dapat mengubah dan menyimpan ulang jika diperlukan.</p>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+<?php endif; ?>
 
 <!-- Penilaian Form -->
 <?php if ($respondentId): ?>

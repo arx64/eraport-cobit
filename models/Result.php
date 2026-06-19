@@ -25,7 +25,7 @@ class Result {
             JOIN processes p ON r.process_id = p.id
         ";
         if ($tanggal) {
-            $sql .= " WHERE DATE(r.created_at) = ?";
+            $sql .= " WHERE r.tanggal_penilaian = ?";
         }
         $sql .= " ORDER BY r.created_at DESC";
         
@@ -52,7 +52,7 @@ class Result {
             WHERE r.process_id = ?
         ";
         if ($tanggal) {
-            $sql .= " AND DATE(r.created_at) = ?";
+            $sql .= " AND r.tanggal_penilaian = ?";
         }
         $sql .= " ORDER BY r.capability_level DESC";
         
@@ -66,21 +66,31 @@ class Result {
     }
     
     /**
-     * Get result by respondent and process
+     * Get result by respondent and process for a specific date
      * @param int $respondentId Respondent ID
      * @param int $processId Process ID
+     * @param string|null $tanggal Optional date filter (Y-m-d). If null, returns latest.
      * @return array|false
      */
-    public function getByRespondentAndProcess(int $respondentId, int $processId) {
-        $stmt = $this->db->prepare("
+    public function getByRespondentAndProcess(int $respondentId, int $processId, ?string $tanggal = null) {
+        $sql = "
             SELECT r.*, res.nama as respondent_name, p.kode_domain, p.nama_domain
             FROM results r
             JOIN respondents res ON r.respondent_id = res.id
             JOIN processes p ON r.process_id = p.id
             WHERE r.respondent_id = ? AND r.process_id = ?
-            LIMIT 1
-        ");
-        $stmt->execute([$respondentId, $processId]);
+        ";
+        $params = [$respondentId, $processId];
+
+        if ($tanggal !== null) {
+            $sql .= " AND r.tanggal_penilaian = ?";
+            $params[] = $tanggal;
+        }
+
+        $sql .= " ORDER BY r.created_at DESC LIMIT 1";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetch();
     }
     
@@ -103,7 +113,7 @@ class Result {
             LEFT JOIN results r ON p.id = r.process_id
         ";
         if ($tanggal) {
-            $sql .= " AND DATE(r.created_at) = ?";
+            $sql .= " AND r.tanggal_penilaian = ?";
         }
         $sql .= " GROUP BY p.id, p.kode_domain, p.nama_domain ORDER BY p.id";
         
@@ -131,7 +141,7 @@ class Result {
             FROM results
         ";
         if ($tanggal) {
-            $sql .= " WHERE DATE(created_at) = ?";
+            $sql .= " WHERE tanggal_penilaian = ?";
         }
         
         $stmt = $this->db->prepare($sql);
@@ -150,7 +160,8 @@ class Result {
      */
     public function delete(int $id): bool {
         $stmt = $this->db->prepare("DELETE FROM results WHERE id = ?");
-        return $stmt->execute([$id]);
+        $stmt->execute([$id]);
+        return $stmt->rowCount() > 0;
     }
 
     /**
@@ -162,15 +173,151 @@ class Result {
     }
 
     /**
-     * Get dates that have result data
-     * @return array
+     * Get dates that have result data, with counts of assessments, evaluations and respondents
+     * @return array Each row: { tanggal, total_penilaian, total_evaluasi, total_responden }
      */
     public function getDatesWithData(): array {
         $stmt = $this->db->query("
-            SELECT DISTINCT DATE(created_at) as tanggal 
-            FROM results 
-            ORDER BY tanggal DESC
+            SELECT 
+                r.tanggal_penilaian as tanggal,
+                (SELECT COUNT(*) 
+                 FROM assessment_answers aa 
+                 WHERE aa.tanggal_penilaian = r.tanggal_penilaian) as total_penilaian,
+                COUNT(*) as total_evaluasi,
+                COUNT(DISTINCT r.respondent_id) as total_responden
+            FROM results r
+            WHERE r.tanggal_penilaian IS NOT NULL
+            GROUP BY r.tanggal_penilaian
+            ORDER BY r.tanggal_penilaian DESC
         ");
         return $stmt->fetchAll();
+    }
+
+    /**
+     * Get dates that have assessment answer data only (may have answers but no results yet)
+     * @return array Each row: { tanggal, total_penilaian }
+     */
+    public function getDatesWithAnswers(): array {
+        $stmt = $this->db->query("
+            SELECT 
+                tanggal_penilaian as tanggal,
+                COUNT(*) as total_penilaian
+            FROM assessment_answers
+            WHERE tanggal_penilaian IS NOT NULL
+            GROUP BY tanggal_penilaian
+            ORDER BY tanggal_penilaian DESC
+        ");
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Get all dates containing assessment/evaluation data, unioned from both tables
+     * @return array Each row: { tanggal, total_penilaian, total_evaluasi, total_responden }
+     */
+    public function getAllDatesWithData(): array {
+        $stmt = $this->db->query("
+            SELECT 
+                d.tanggal,
+                COALESCE(a.total_penilaian, 0) as total_penilaian,
+                COALESCE(r.total_evaluasi, 0) as total_evaluasi,
+                COALESCE(r.total_responden, 0) as total_responden
+            FROM (
+                SELECT tanggal_penilaian as tanggal FROM assessment_answers WHERE tanggal_penilaian IS NOT NULL
+                UNION
+                SELECT tanggal_penilaian as tanggal FROM results WHERE tanggal_penilaian IS NOT NULL
+            ) d
+            LEFT JOIN (
+                SELECT tanggal_penilaian, COUNT(*) as total_penilaian 
+                FROM assessment_answers 
+                WHERE tanggal_penilaian IS NOT NULL
+                GROUP BY tanggal_penilaian
+            ) a ON a.tanggal_penilaian = d.tanggal
+            LEFT JOIN (
+                SELECT tanggal_penilaian, COUNT(*) as total_evaluasi, COUNT(DISTINCT respondent_id) as total_responden
+                FROM results
+                WHERE tanggal_penilaian IS NOT NULL
+                GROUP BY tanggal_penilaian
+            ) r ON r.tanggal_penilaian = d.tanggal
+            ORDER BY d.tanggal DESC
+        ");
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Get result by respondent, process, and specific date
+     * @param int $respondentId Respondent ID
+     * @param int $processId Process ID
+     * @param string $tanggal Tanggal (Y-m-d)
+     * @return array|false
+     */
+    private function getByRespondentProcessDate(int $respondentId, int $processId, string $tanggal) {
+        $stmt = $this->db->prepare("
+            SELECT * FROM results 
+            WHERE respondent_id = ? AND process_id = ? AND tanggal_penilaian = ?
+            LIMIT 1
+        ");
+        $stmt->execute([$respondentId, $processId, $tanggal]);
+        return $stmt->fetch();
+    }
+
+    /**
+     * Create or update result for a specific date
+     * @param int $respondentId Respondent ID
+     * @param int $processId Process ID
+     * @param array $calculation Calculation result
+     * @param string|null $tanggal Tanggal (Y-m-d). Default: today.
+     * @return bool
+     */
+    public function save(int $respondentId, int $processId, array $calculation, ?string $tanggal = null): bool {
+        if ($tanggal === null) {
+            $tanggal = date('Y-m-d');
+        }
+
+        $existing = $this->getByRespondentProcessDate($respondentId, $processId, $tanggal);
+        
+        if ($existing) {
+            $stmt = $this->db->prepare("
+                UPDATE results SET
+                    total_nilai = ?,
+                    rata_rata = ?,
+                    capability_level = ?,
+                    current_level = ?,
+                    target_level = ?,
+                    gap = ?,
+                    status = ?
+                WHERE respondent_id = ? AND process_id = ? AND tanggal_penilaian = ?
+            ");
+            return $stmt->execute([
+                $calculation['total_nilai'],
+                $calculation['rata_rata'],
+                $calculation['capability_level'],
+                $calculation['current_level'],
+                $calculation['target_level'],
+                $calculation['gap'],
+                $calculation['status'],
+                $respondentId,
+                $processId,
+                $tanggal
+            ]);
+        } else {
+            $stmt = $this->db->prepare("
+                INSERT INTO results 
+                (respondent_id, process_id, tanggal_penilaian, total_nilai, rata_rata, capability_level, 
+                 current_level, target_level, gap, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            return $stmt->execute([
+                $respondentId,
+                $processId,
+                $tanggal,
+                $calculation['total_nilai'],
+                $calculation['rata_rata'],
+                $calculation['capability_level'],
+                $calculation['current_level'],
+                $calculation['target_level'],
+                $calculation['gap'],
+                $calculation['status']
+            ]);
+        }
     }
 }

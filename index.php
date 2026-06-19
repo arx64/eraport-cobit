@@ -26,6 +26,7 @@ $routes = [
     
     // Dashboard
     'dashboard' => ['DashboardController', 'index'],
+    'api/dates-with-data' => ['DashboardController', 'apiDatesWithData'],
     
     // Framework COBIT
     'framework' => ['FrameworkController', 'index'],

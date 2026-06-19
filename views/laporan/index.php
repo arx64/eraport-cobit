@@ -18,14 +18,17 @@
                 <form method="GET" class="d-flex align-items-center gap-2" id="dateFilterForm">
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
-                        <input type="text" class="form-control" name="tanggal" id="tanggal" 
-                               value="<?= sanitize($tanggal) ?>">
+                        <input type="text" class="form-control" name="tanggal" id="tanggal"
+                               value="<?= sanitize($tanggal) ?>" placeholder="Pilih tanggal" autocomplete="off" readonly>
                     </div>
                     <button type="submit" class="btn btn-primary btn-sm">Tampilkan</button>
                 </form>
                 <a href="<?= BASE_URL ?>/laporan/pdf?tanggal=<?= sanitize($tanggal) ?>" class="btn btn-danger" target="_blank">
                     <i class="bi bi-file-earmark-pdf me-1"></i>Cetak PDF
                 </a>
+            </div>
+            <div class="date-picker-legend justify-content-end mt-1">
+                <span class="legend-item"><span class="legend-swatch has-dot"></span> Tersedia data</span>
             </div>
         </div>
     </div>
@@ -159,73 +162,103 @@
 </div>
 
 <script>
-const laporanDatesWithData = <?= json_encode(array_map(fn($d) => $d['tanggal'], $datesWithData)) ?>;
-const laporanTanggalInput = document.getElementById('tanggal');
-flatpickr(laporanTanggalInput, {
-    dateFormat: 'Y-m-d',
-    defaultDate: '<?= $tanggal ?>',
-    enable: laporanDatesWithData,
-    locale: 'id',
-    onChange: function(selectedDates, dateStr, instance) {
-        document.getElementById('dateFilterForm').submit();
-    }
+document.addEventListener('DOMContentLoaded', function () {
+    const laporanDatesWithData = <?= json_encode($datesWithData) ?>;
+    initDatePickerWithData('#tanggal', laporanDatesWithData, {
+        formId: 'dateFilterForm',
+        defaultDate: '<?= $tanggal ?>',
+        ajaxUrl: '<?= BASE_URL ?>/api/dates-with-data'
+    });
 });
 </script>
 <script>
-// Report Charts
-const repCapCtx = document.getElementById('reportCapabilityChart').getContext('2d');
-new Chart(repCapCtx, {
-    type: 'bar',
-    data: {
-        labels: <?= json_encode(array_map(fn($r) => $r['kode_domain'], $aggregateResults)) ?>,
-        datasets: [{
-            label: 'Rata-rata Capability Level',
-            data: <?= json_encode(array_map(fn($r) => (float) $r['avg_rata_rata'], $aggregateResults)) ?>,
-            backgroundColor: [
-                'rgba(13, 110, 253, 0.8)',
-                'rgba(25, 135, 84, 0.8)'
-            ],
-            borderWidth: 2,
-            borderRadius: 6
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            title: { display: true, text: 'Capability Level per Domain' },
-            legend: { display: false }
+document.addEventListener('DOMContentLoaded', function () {
+    // Report Charts
+    const repCapCtx = document.getElementById('reportCapabilityChart').getContext('2d');
+    new Chart(repCapCtx, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode(array_map(fn($r) => $r['kode_domain'], $aggregateResults)) ?>,
+            datasets: [{
+                label: 'Rata-rata Capability Level',
+                data: <?= json_encode(array_map(fn($r) => round((float) $r['avg_rata_rata'], 2), $aggregateResults)) ?>,
+                backgroundColor: [
+                    'rgba(13, 110, 253, 0.8)',
+                    'rgba(25, 135, 84, 0.8)'
+                ],
+                borderWidth: 2,
+                borderRadius: 6
+            }]
         },
-        scales: {
-            y: { beginAtZero: true, max: 5, ticks: { stepSize: 1 } }
+        options: {
+            responsive: true,
+            plugins: {
+                title: { display: true, text: 'Capability Level per Domain' },
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Level: ' + Number(context.parsed.y).toFixed(2);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 5,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            return Number(value).toFixed(2);
+                        }
+                    }
+                }
+            }
         }
-    }
-});
+    });
 
-const repGapCtx = document.getElementById('reportGapChart').getContext('2d');
-new Chart(repGapCtx, {
-    type: 'bar',
-    data: {
-        labels: <?= json_encode(array_map(fn($r) => $r['kode_domain'], $aggregateResults)) ?>,
-        datasets: [{
-            label: 'Gap',
-            data: <?= json_encode(array_map(fn($r) => (float) $r['avg_gap'], $aggregateResults)) ?>,
-            backgroundColor: [
-                'rgba(220, 53, 69, 0.8)',
-                'rgba(255, 193, 7, 0.8)'
-            ],
-            borderWidth: 2,
-            borderRadius: 6
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            title: { display: true, text: 'Gap Analysis per Domain' },
-            legend: { display: false }
+    const repGapCtx = document.getElementById('reportGapChart').getContext('2d');
+    new Chart(repGapCtx, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode(array_map(fn($r) => $r['kode_domain'], $aggregateResults)) ?>,
+            datasets: [{
+                label: 'Gap',
+                data: <?= json_encode(array_map(fn($r) => round((float) $r['avg_gap'], 2), $aggregateResults)) ?>,
+                backgroundColor: [
+                    'rgba(220, 53, 69, 0.8)',
+                    'rgba(255, 193, 7, 0.8)'
+                ],
+                borderWidth: 2,
+                borderRadius: 6
+            }]
         },
-        scales: {
-            y: { beginAtZero: true, title: { display: true, text: 'Nilai Gap' } }
+        options: {
+            responsive: true,
+            plugins: {
+                title: { display: true, text: 'Gap Analysis per Domain' },
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Gap: ' + Number(context.parsed.y).toFixed(2);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Nilai Gap' },
+                    ticks: {
+                        callback: function(value) {
+                            return Number(value).toFixed(2);
+                        }
+                    }
+                }
+            }
         }
-    }
+    });
 });
 </script>

@@ -4,6 +4,8 @@
  * Sistem Analisis Risiko TI e-Raport - COBIT 2019
  */
 
+date_default_timezone_set('Asia/Jakarta');
+
 session_start();
 
 require_once __DIR__ . '/../config/database.php';
@@ -327,19 +329,24 @@ function generateRecommendations(string $domain, float $gap): array {
  * Hitung capability level otomatis
  * @param int $respondentId ID responden
  * @param int $processId ID proses/domain
+ * @param string|null $tanggal Tanggal penilaian (Y-m-d). Default: hari ini.
  * @return array
  */
-function calculateCapabilityLevel(int $respondentId, int $processId): array {
+function calculateCapabilityLevel(int $respondentId, int $processId, ?string $tanggal = null): array {
     $db = db();
+    
+    if ($tanggal === null) {
+        $tanggal = date('Y-m-d');
+    }
     
     // Hitung total nilai
     $stmt = $db->prepare("
         SELECT SUM(nilai) as total, COUNT(*) as jumlah 
         FROM assessment_answers aa
         JOIN assessment_questions aq ON aa.question_id = aq.id
-        WHERE aa.respondent_id = ? AND aq.process_id = ?
+        WHERE aa.respondent_id = ? AND aq.process_id = ? AND aa.tanggal_penilaian = ?
     ");
-    $stmt->execute([$respondentId, $processId]);
+    $stmt->execute([$respondentId, $processId, $tanggal]);
     $result = $stmt->fetch();
     
     $totalNilai = (int) ($result['total'] ?? 0);
@@ -352,7 +359,7 @@ function calculateCapabilityLevel(int $respondentId, int $processId): array {
             'capability_level' => 0,
             'current_level' => 'Non-existent',
             'target_level' => TARGET_LEVEL,
-            'gap' => $gap,
+            'gap' => TARGET_LEVEL,
             'status' => 'Sangat Kurang'
         ];
     }
@@ -379,21 +386,25 @@ function calculateCapabilityLevel(int $respondentId, int $processId): array {
  * Simpan atau update hasil perhitungan
  * @param int $respondentId ID responden
  * @param int $processId ID proses/domain
+ * @param string|null $tanggal Tanggal penilaian (Y-m-d). Default: hari ini.
  */
-function saveResult(int $respondentId, int $processId): void {
-    $calculation = calculateCapabilityLevel($respondentId, $processId);
+function saveResult(int $respondentId, int $processId, ?string $tanggal = null): void {
+    if ($tanggal === null) {
+        $tanggal = date('Y-m-d');
+    }
+    
+    $calculation = calculateCapabilityLevel($respondentId, $processId, $tanggal);
     $db = db();
     
-    // Cek apakah sudah ada hasil
+    // Cek apakah sudah ada hasil untuk tanggal ini
     $stmt = $db->prepare("
         SELECT id FROM results 
-        WHERE respondent_id = ? AND process_id = ?
+        WHERE respondent_id = ? AND process_id = ? AND tanggal_penilaian = ?
     ");
-    $stmt->execute([$respondentId, $processId]);
+    $stmt->execute([$respondentId, $processId, $tanggal]);
     $existing = $stmt->fetch();
     
     if ($existing) {
-        // Update
         $stmt = $db->prepare("
             UPDATE results SET
                 total_nilai = ?,
@@ -403,7 +414,7 @@ function saveResult(int $respondentId, int $processId): void {
                 target_level = ?,
                 gap = ?,
                 status = ?
-            WHERE respondent_id = ? AND process_id = ?
+            WHERE respondent_id = ? AND process_id = ? AND tanggal_penilaian = ?
         ");
         $stmt->execute([
             $calculation['total_nilai'],
@@ -414,19 +425,20 @@ function saveResult(int $respondentId, int $processId): void {
             $calculation['gap'],
             $calculation['status'],
             $respondentId,
-            $processId
+            $processId,
+            $tanggal
         ]);
     } else {
-        // Insert baru
         $stmt = $db->prepare("
             INSERT INTO results 
-            (respondent_id, process_id, total_nilai, rata_rata, capability_level, 
+            (respondent_id, process_id, tanggal_penilaian, total_nilai, rata_rata, capability_level, 
              current_level, target_level, gap, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $stmt->execute([
             $respondentId,
             $processId,
+            $tanggal,
             $calculation['total_nilai'],
             $calculation['rata_rata'],
             $calculation['capability_level'],

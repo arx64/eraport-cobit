@@ -57,12 +57,16 @@ CREATE TABLE assessment_answers (
     id INT PRIMARY KEY AUTO_INCREMENT,
     respondent_id INT NOT NULL,
     question_id INT NOT NULL,
+    tanggal_penilaian DATE NOT NULL,
     nilai INT NOT NULL CHECK (nilai >= 0 AND nilai <= 5),
     keterangan TEXT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (respondent_id) REFERENCES respondents(id) ON DELETE CASCADE,
     FOREIGN KEY (question_id) REFERENCES assessment_questions(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_answer (respondent_id, question_id)
+    INDEX idx_aa_respondent (respondent_id),
+    INDEX idx_aa_question (question_id),
+    INDEX idx_tanggal_penilaian (tanggal_penilaian),
+    UNIQUE KEY unique_answer_daily (respondent_id, question_id, tanggal_penilaian)
 ) ENGINE=InnoDB;
 
 -- Tabel Results (Hasil Perhitungan)
@@ -70,6 +74,7 @@ CREATE TABLE results (
     id INT PRIMARY KEY AUTO_INCREMENT,
     respondent_id INT NOT NULL,
     process_id INT NOT NULL,
+    tanggal_penilaian DATE NOT NULL,
     total_nilai INT NOT NULL,
     rata_rata DECIMAL(4,2) NOT NULL,
     capability_level DECIMAL(4,2) NOT NULL,
@@ -80,7 +85,10 @@ CREATE TABLE results (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (respondent_id) REFERENCES respondents(id) ON DELETE CASCADE,
     FOREIGN KEY (process_id) REFERENCES processes(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_result (respondent_id, process_id)
+    INDEX idx_res_respondent (respondent_id),
+    INDEX idx_res_process (process_id),
+    INDEX idx_res_tanggal (tanggal_penilaian),
+    UNIQUE KEY unique_result_daily (respondent_id, process_id, tanggal_penilaian)
 ) ENGINE=InnoDB;
 
 -- Tabel Design Factors
@@ -143,55 +151,55 @@ INSERT INTO design_factors (kode_df, nama_df, status, keterangan) VALUES
 ('DF7', 'Role of IT', 'Relevan', 'Peran teknologi informasi dalam mendukung proses bisnis sekolah, khususnya dalam pengelolaan nilai dan rapor siswa secara digital.');
 
 -- Data Hasil Penilaian (Dummy - sudah ada jawaban)
-INSERT INTO assessment_answers (respondent_id, question_id, nilai, keterangan) VALUES
+INSERT INTO assessment_answers (respondent_id, question_id, tanggal_penilaian, nilai, keterangan) VALUES
 -- Responden 1 - DSS01
-(1, 1, 3, 'Prosedur ada namun belum lengkap'),
-(1, 2, 4, 'Backup dilakukan rutin setiap minggu'),
-(1, 3, 3, 'Pencatatan ada tapi belum terintegrasi'),
-(1, 4, 2, 'Belum ada sistem ticketing formal'),
-(1, 5, 3, 'Pemantauan dilakukan secara manual'),
-(1, 6, 2, 'Evaluasi kapasitas jarang dilakukan'),
+(1, 1, '2024-01-15', 3, 'Prosedur ada namun belum lengkap'),
+(1, 2, '2024-01-15', 4, 'Backup dilakukan rutin setiap minggu'),
+(1, 3, '2024-01-15', 3, 'Pencatatan ada tapi belum terintegrasi'),
+(1, 4, '2024-01-15', 2, 'Belum ada sistem ticketing formal'),
+(1, 5, '2024-01-15', 3, 'Pemantauan dilakukan secara manual'),
+(1, 6, '2024-01-15', 2, 'Evaluasi kapasitas jarang dilakukan'),
 -- Responden 1 - DSS05
-(1, 7, 3, 'Kebijakan ada namun belum diimplementasikan penuh'),
-(1, 8, 4, 'Autentikasi dan enkripsi sudah diterapkan'),
-(1, 9, 3, 'Hak akses dikelola tapi belum berkala dievaluasi'),
-(1, 10, 2, 'Logging ada tapi belum diaudit secara rutin'),
-(1, 11, 2, 'Prosedur insiden belum terdokumentasi lengkap'),
-(1, 12, 3, 'Audit dilakukan setiap semester'),
+(1, 7, '2024-01-15', 3, 'Kebijakan ada namun belum diimplementasikan penuh'),
+(1, 8, '2024-01-15', 4, 'Autentikasi dan enkripsi sudah diterapkan'),
+(1, 9, '2024-01-15', 3, 'Hak akses dikelola tapi belum berkala dievaluasi'),
+(1, 10, '2024-01-15', 2, 'Logging ada tapi belum diaudit secara rutin'),
+(1, 11, '2024-01-15', 2, 'Prosedur insiden belum terdokumentasi lengkap'),
+(1, 12, '2024-01-15', 3, 'Audit dilakukan setiap semester'),
 -- Responden 2 - DSS01
-(2, 1, 4, 'Prosedur lengkap dan terdokumentasi'),
-(2, 2, 4, 'Backup otomatis harian'),
-(2, 3, 4, 'Sistem ticketing sudah digunakan'),
-(2, 4, 3, 'Pencatatan insiden sudah terintegrasi'),
-(2, 5, 4, 'Pemantauan real-time dengan dashboard'),
-(2, 6, 3, 'Evaluasi dilakukan tiap semester'),
+(2, 1, '2024-01-16', 4, 'Prosedur lengkap dan terdokumentasi'),
+(2, 2, '2024-01-16', 4, 'Backup otomatis harian'),
+(2, 3, '2024-01-16', 4, 'Sistem ticketing sudah digunakan'),
+(2, 4, '2024-01-16', 3, 'Pencatatan insiden sudah terintegrasi'),
+(2, 5, '2024-01-16', 4, 'Pemantauan real-time dengan dashboard'),
+(2, 6, '2024-01-16', 3, 'Evaluasi dilakukan tiap semester'),
 -- Responden 2 - DSS05
-(2, 7, 4, 'Kebijakan lengkap dan sudah disosialisasikan'),
-(2, 8, 4, 'Semua kontrol keamanan diterapkan'),
-(2, 9, 4, 'Evaluasi akses dilakukan tiap semester'),
-(2, 10, 3, 'Audit log dilakukan secara berkala'),
-(2, 11, 3, 'Prosedur insiden sudah ada'),
-(2, 12, 4, 'Audit keamanan dilakukan berkala'),
+(2, 7, '2024-01-16', 4, 'Kebijakan lengkap dan sudah disosialisasikan'),
+(2, 8, '2024-01-16', 4, 'Semua kontrol keamanan diterapkan'),
+(2, 9, '2024-01-16', 4, 'Evaluasi akses dilakukan tiap semester'),
+(2, 10, '2024-01-16', 3, 'Audit log dilakukan secara berkala'),
+(2, 11, '2024-01-16', 3, 'Prosedur insiden sudah ada'),
+(2, 12, '2024-01-16', 4, 'Audit keamanan dilakukan berkala'),
 -- Responden 3 - DSS01
-(3, 1, 3, 'Prosedur ada namun perlu pemutakhiran'),
-(3, 2, 3, 'Backup dilakukan tapi tidak terjadwal'),
-(3, 3, 4, 'Pencatatan layanan sudah baik'),
-(3, 4, 3, 'Sederhana tapi berfungsi'),
-(3, 5, 3, 'Pemantauan manual'),
-(3, 6, 2, 'Perlu evaluasi lebih rutin'),
+(3, 1, '2024-01-17', 3, 'Prosedur ada namun perlu pemutakhiran'),
+(3, 2, '2024-01-17', 3, 'Backup dilakukan tapi tidak terjadwal'),
+(3, 3, '2024-01-17', 4, 'Pencatatan layanan sudah baik'),
+(3, 4, '2024-01-17', 3, 'Sederhana tapi berfungsi'),
+(3, 5, '2024-01-17', 3, 'Pemantauan manual'),
+(3, 6, '2024-01-17', 2, 'Perlu evaluasi lebih rutin'),
 -- Responden 3 - DSS05
-(3, 7, 3, 'Kebijakan dasar sudah ada'),
-(3, 8, 3, 'Kontrol dasar sudah diterapkan'),
-(3, 9, 3, 'Manajemen akses sederhana'),
-(3, 10, 2, 'Belum ada audit log rutin'),
-(3, 11, 2, 'Respons insiden ad-hoc'),
-(3, 12, 2, 'Audit jarang dilakukan');
+(3, 7, '2024-01-17', 3, 'Kebijakan dasar sudah ada'),
+(3, 8, '2024-01-17', 3, 'Kontrol dasar sudah diterapkan'),
+(3, 9, '2024-01-17', 3, 'Manajemen akses sederhana'),
+(3, 10, '2024-01-17', 2, 'Belum ada audit log rutin'),
+(3, 11, '2024-01-17', 2, 'Respons insiden ad-hoc'),
+(3, 12, '2024-01-17', 2, 'Audit jarang dilakukan');
 
 -- Insert calculated results
-INSERT INTO results (respondent_id, process_id, total_nilai, rata_rata, capability_level, current_level, target_level, gap, status) VALUES
-(1, 1, 17, 2.83, 0.47, 'Repeatable', 4, 1.17, 'Cukup'),
-(1, 2, 17, 2.83, 0.47, 'Repeatable', 4, 1.17, 'Cukup'),
-(2, 1, 22, 3.67, 0.61, 'Defined', 4, 0.33, 'Baik'),
-(2, 2, 22, 3.67, 0.61, 'Defined', 4, 0.33, 'Baik'),
-(3, 1, 18, 3.00, 0.50, 'Repeatable', 4, 1.00, 'Cukup'),
-(3, 2, 15, 2.50, 0.42, 'Repeatable', 4, 1.58, 'Kurang');
+INSERT INTO results (respondent_id, process_id, tanggal_penilaian, total_nilai, rata_rata, capability_level, current_level, target_level, gap, status) VALUES
+(1, 1, '2024-01-15', 17, 2.83, 0.47, 'Repeatable', 4, 1.17, 'Cukup'),
+(1, 2, '2024-01-15', 17, 2.83, 0.47, 'Repeatable', 4, 1.17, 'Cukup'),
+(2, 1, '2024-01-16', 22, 3.67, 0.61, 'Defined', 4, 0.33, 'Baik'),
+(2, 2, '2024-01-16', 22, 3.67, 0.61, 'Defined', 4, 0.33, 'Baik'),
+(3, 1, '2024-01-17', 18, 3.00, 0.50, 'Repeatable', 4, 1.00, 'Cukup'),
+(3, 2, '2024-01-17', 15, 2.50, 0.42, 'Repeatable', 4, 1.58, 'Kurang');

@@ -27,13 +27,13 @@ class AnalisisController {
         $processId = (int) ($_GET['process_id'] ?? 0);
         $respondentId = (int) ($_GET['respondent_id'] ?? 0);
         $tanggal = $_GET['tanggal'] ?? date('Y-m-d');
-        $datesWithData = $this->resultModel->getDatesWithData();
+        $datesWithData = $this->resultModel->getAllDatesWithData();
         
         $results = [];
         $selectedResult = null;
         
         if ($processId && $respondentId) {
-            $selectedResult = $this->resultModel->getByRespondentAndProcess($respondentId, $processId);
+            $selectedResult = $this->resultModel->getByRespondentAndProcess($respondentId, $processId, $tanggal);
             $results = $this->resultModel->getByProcessId($processId, $tanggal);
         } elseif ($processId) {
             $results = $this->resultModel->getByProcessId($processId, $tanggal);

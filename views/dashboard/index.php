@@ -17,11 +17,14 @@
             <form method="GET" class="d-flex align-items-center gap-2" id="dateFilterForm">
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
-                    <input type="text" class="form-control" name="tanggal" id="tanggal" 
-                           value="<?= sanitize($tanggal) ?>">
+                    <input type="text" class="form-control" name="tanggal" id="tanggal"
+                           value="<?= sanitize($tanggal) ?>" placeholder="Pilih tanggal" autocomplete="off" readonly>
                 </div>
                 <button type="submit" class="btn btn-primary btn-sm">Tampilkan</button>
             </form>
+            <div class="date-picker-legend justify-content-end">
+                <span class="legend-item"><span class="legend-swatch has-dot"></span> Tersedia data</span>
+            </div>
         </div>
     </div>
 </div>
@@ -189,17 +192,13 @@
 </div>
 
 <script>
-const datesWithData = <?= json_encode(array_map(fn($d) => $d['tanggal'], $datesWithData)) ?>;
-
-const tanggalInput = document.getElementById('tanggal');
-flatpickr(tanggalInput, {
-    dateFormat: 'Y-m-d',
-    defaultDate: '<?= $tanggal ?>',
-    enable: datesWithData,
-    locale: 'id',
-    onChange: function(selectedDates, dateStr, instance) {
-        document.getElementById('dateFilterForm').submit();
-    }
+document.addEventListener('DOMContentLoaded', function () {
+    const datesWithData = <?= json_encode($datesWithData) ?>;
+    initDatePickerWithData('#tanggal', datesWithData, {
+        formId: 'dateFilterForm',
+        defaultDate: '<?= $tanggal ?>',
+        ajaxUrl: '<?= BASE_URL ?>/api/dates-with-data'
+    });
 });
 </script>
 
@@ -212,7 +211,7 @@ new Chart(capabilityCtx, {
         labels: <?= json_encode(array_map(fn($r) => $r['kode_domain'], $aggregateResults)) ?>,
         datasets: [{
             label: 'Rata-rata Capability Level',
-            data: <?= json_encode(array_map(fn($r) => (float) $r['avg_rata_rata'], $aggregateResults)) ?>,
+            data: <?= json_encode(array_map(fn($r) => round((float) $r['avg_rata_rata'], 2), $aggregateResults)) ?>,
             backgroundColor: [
                 'rgba(13, 110, 253, 0.8)',
                 'rgba(25, 135, 84, 0.8)'
@@ -232,7 +231,7 @@ new Chart(capabilityCtx, {
             tooltip: {
                 callbacks: {
                     label: function(context) {
-                        return 'Level: ' + context.parsed.y.toFixed(2);
+                        return 'Level: ' + Number(context.parsed.y).toFixed(2);
                     }
                 }
             }
@@ -242,7 +241,10 @@ new Chart(capabilityCtx, {
                 beginAtZero: true,
                 max: 5,
                 ticks: {
-                    stepSize: 1
+                    stepSize: 1,
+                    callback: function(value) {
+                        return Number(value).toFixed(2);
+                    }
                 }
             }
         }
@@ -257,7 +259,7 @@ new Chart(gapCtx, {
         labels: <?= json_encode(array_map(fn($r) => $r['kode_domain'], $aggregateResults)) ?>,
         datasets: [{
             label: 'Gap',
-            data: <?= json_encode(array_map(fn($r) => (float) $r['avg_gap'], $aggregateResults)) ?>,
+            data: <?= json_encode(array_map(fn($r) => round((float) $r['avg_gap'], 2), $aggregateResults)) ?>,
             backgroundColor: [
                 'rgba(220, 53, 69, 0.8)',
                 'rgba(255, 193, 7, 0.8)'
@@ -273,7 +275,14 @@ new Chart(gapCtx, {
     options: {
         responsive: true,
         plugins: {
-            legend: { display: false }
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return 'Gap: ' + Number(context.parsed.y).toFixed(2);
+                    }
+                }
+            }
         },
         scales: {
             y: {
@@ -281,6 +290,11 @@ new Chart(gapCtx, {
                 title: {
                     display: true,
                     text: 'Nilai Gap'
+                },
+                ticks: {
+                    callback: function(value) {
+                        return Number(value).toFixed(2);
+                    }
                 }
             }
         }
@@ -297,10 +311,10 @@ new Chart(radarCtx, {
             {
                 label: 'DSS01 - Manage Operations',
                 data: [
-                    <?= (float) ($aggregateResults[0]['avg_rata_rata'] ?? 0) ?>,
+                    <?= round((float) ($aggregateResults[0]['avg_rata_rata'] ?? 0), 2) ?>,
                     <?= TARGET_LEVEL ?>,
-                    <?= TARGET_LEVEL ?> - <?= (float) ($aggregateResults[0]['avg_rata_rata'] ?? 0) ?>,
-                    <?= (float) ($aggregateResults[0]['avg_rata_rata'] ?? 0) ?>
+                    <?= round(TARGET_LEVEL - (float) ($aggregateResults[0]['avg_rata_rata'] ?? 0), 2) ?>,
+                    <?= round((float) ($aggregateResults[0]['avg_rata_rata'] ?? 0), 2) ?>
                 ],
                 backgroundColor: 'rgba(13, 110, 253, 0.2)',
                 borderColor: 'rgba(13, 110, 253, 1)',
@@ -310,10 +324,10 @@ new Chart(radarCtx, {
             {
                 label: 'DSS05 - Manage Security Services',
                 data: [
-                    <?= (float) ($aggregateResults[1]['avg_rata_rata'] ?? 0) ?>,
+                    <?= round((float) ($aggregateResults[1]['avg_rata_rata'] ?? 0), 2) ?>,
                     <?= TARGET_LEVEL ?>,
-                    <?= TARGET_LEVEL ?> - <?= (float) ($aggregateResults[1]['avg_rata_rata'] ?? 0) ?>,
-                    <?= (float) ($aggregateResults[1]['avg_rata_rata'] ?? 0) ?>
+                    <?= round(TARGET_LEVEL - (float) ($aggregateResults[1]['avg_rata_rata'] ?? 0), 2) ?>,
+                    <?= round((float) ($aggregateResults[1]['avg_rata_rata'] ?? 0), 2) ?>
                 ],
                 backgroundColor: 'rgba(25, 135, 84, 0.2)',
                 borderColor: 'rgba(25, 135, 84, 1)',
@@ -324,12 +338,29 @@ new Chart(radarCtx, {
     },
     options: {
         responsive: true,
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.dataset.label + ': ' + Number(context.parsed.r).toFixed(2);
+                    }
+                }
+            }
+        },
         scales: {
             r: {
                 beginAtZero: true,
                 max: 5,
                 ticks: {
-                    stepSize: 1
+                    stepSize: 1,
+                    callback: function(value) {
+                        return Number(value).toFixed(2);
+                    }
+                },
+                pointLabels: {
+                    callback: function(value) {
+                        return value;
+                    }
                 }
             }
         }

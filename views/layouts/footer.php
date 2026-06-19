@@ -30,6 +30,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 <!-- Custom JS -->
 <script src="<?= BASE_URL ?>/assets/js/main.js"></script>
+<script src="<?= BASE_URL ?>/assets/js/date-picker.js"></script>
 
 </body>
 </html>

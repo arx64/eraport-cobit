@@ -135,6 +135,7 @@ class PenilaianController {
         requireLogin();
         
         $respondentId = (int) ($_GET['respondent_id'] ?? 0);
+        $today = date('Y-m-d');
         
         $data = [
             'title' => 'Penilaian DSS01',
@@ -142,14 +143,21 @@ class PenilaianController {
             'questions' => $this->questionModel->getByProcessId(1),
             'respondents' => $this->respondentModel->getForDropdown(),
             'respondentId' => $respondentId,
-            'answers' => []
+            'answers' => [],
+            'today' => $today,
+            'historyDates' => [],
+            'hasTodayData' => false
         ];
         
         if ($respondentId) {
-            $answers = $this->answerModel->getByRespondentAndProcess($respondentId, 1);
+            $answers = $this->answerModel->getByRespondentAndProcess($respondentId, 1, $today);
             foreach ($answers as $answer) {
                 $data['answers'][$answer['question_id']] = $answer;
             }
+            $data['hasTodayData'] = count($answers) > 0;
+            
+            $historyDates = $this->answerModel->getDatesByRespondentAndProcess($respondentId, 1);
+            $data['historyDates'] = array_values(array_filter($historyDates, fn($d) => $d !== $today));
         }
         
         view("penilaian/dss01", $data);
@@ -162,6 +170,7 @@ class PenilaianController {
         requireLogin();
         
         $respondentId = (int) ($_GET['respondent_id'] ?? 0);
+        $today = date('Y-m-d');
         
         $data = [
             'title' => 'Penilaian DSS05',
@@ -169,14 +178,21 @@ class PenilaianController {
             'questions' => $this->questionModel->getByProcessId(2),
             'respondents' => $this->respondentModel->getForDropdown(),
             'respondentId' => $respondentId,
-            'answers' => []
+            'answers' => [],
+            'today' => $today,
+            'historyDates' => [],
+            'hasTodayData' => false
         ];
         
         if ($respondentId) {
-            $answers = $this->answerModel->getByRespondentAndProcess($respondentId, 2);
+            $answers = $this->answerModel->getByRespondentAndProcess($respondentId, 2, $today);
             foreach ($answers as $answer) {
                 $data['answers'][$answer['question_id']] = $answer;
             }
+            $data['hasTodayData'] = count($answers) > 0;
+            
+            $historyDates = $this->answerModel->getDatesByRespondentAndProcess($respondentId, 2);
+            $data['historyDates'] = array_values(array_filter($historyDates, fn($d) => $d !== $today));
         }
         
         view("penilaian/dss05", $data);
@@ -202,13 +218,14 @@ class PenilaianController {
         
         $questions = $this->questionModel->getByProcessId($processId);
         $saved = 0;
+        $today = date('Y-m-d');
         
         foreach ($questions as $question) {
             $nilai = (int) ($_POST['nilai_' . $question['id']] ?? -1);
             $keterangan = $_POST['keterangan_' . $question['id']] ?? null;
             
             if ($nilai >= 0 && $nilai <= 5) {
-                if ($this->answerModel->save($respondentId, $question['id'], $nilai, $keterangan)) {
+                if ($this->answerModel->save($respondentId, $question['id'], $nilai, $keterangan, $today)) {
                     $saved++;
                 }
             }
@@ -216,7 +233,7 @@ class PenilaianController {
         
         // Hitung dan simpan capability level
         if ($saved > 0) {
-            saveResult($respondentId, $processId);
+            saveResult($respondentId, $processId, $today);
             setFlash('success', "Penilaian berhasil disimpan. {$saved} jawaban tersimpan.");
         } else {
             setFlash('error', "Tidak ada jawaban yang disimpan.");

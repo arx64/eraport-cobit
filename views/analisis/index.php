@@ -20,26 +20,26 @@
                 <input type="hidden" name="respondent_id" value="<?= $respondentId ?>">
                 <div class="input-group">
                     <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
-                    <input type="text" class="form-control" name="tanggal" id="tanggal" 
-                           value="<?= sanitize($tanggal) ?>">
+                    <input type="text" class="form-control" name="tanggal" id="tanggal"
+                           value="<?= sanitize($tanggal) ?>" placeholder="Pilih tanggal" autocomplete="off" readonly>
                 </div>
                 <button type="submit" class="btn btn-primary btn-sm">Tampilkan</button>
             </form>
+            <div class="date-picker-legend justify-content-end">
+                <span class="legend-item"><span class="legend-swatch has-dot"></span> Tersedia data</span>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-const datesWithData = <?= json_encode(array_map(fn($d) => $d['tanggal'], $datesWithData)) ?>;
-const tanggalInput = document.getElementById('tanggal');
-flatpickr(tanggalInput, {
-    dateFormat: 'Y-m-d',
-    defaultDate: '<?= $tanggal ?>',
-    enable: datesWithData,
-    locale: 'id',
-    onChange: function(selectedDates, dateStr, instance) {
-        document.getElementById('dateFilterForm').submit();
-    }
+document.addEventListener('DOMContentLoaded', function () {
+    const datesWithData = <?= json_encode($datesWithData) ?>;
+    initDatePickerWithData('#tanggal', datesWithData, {
+        formId: 'dateFilterForm',
+        defaultDate: '<?= $tanggal ?>',
+        ajaxUrl: '<?= BASE_URL ?>/api/dates-with-data'
+    });
 });
 </script>
 
@@ -264,6 +264,13 @@ flatpickr(tanggalInput, {
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return 'Level: ' + Number(context.parsed.y).toFixed(2);
+                        }
+                    }
                 }
             },
             scales: {
@@ -271,7 +278,10 @@ flatpickr(tanggalInput, {
                     beginAtZero: true,
                     max: 5,
                     ticks: {
-                        stepSize: 1
+                        stepSize: 1,
+                        callback: function(value) {
+                            return Number(value).toFixed(2);
+                        }
                     },
                     title: {
                         display: true,
@@ -309,10 +319,25 @@ flatpickr(tanggalInput, {
         },
         options: {
             responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + Number(context.parsed.y).toFixed(2);
+                        }
+                    }
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
                     max: 5,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            return Number(value).toFixed(2);
+                        }
+                    },
                     title: {
                         display: true,
                         text: 'Level'
@@ -331,9 +356,9 @@ flatpickr(tanggalInput, {
             datasets: [{
                     label: 'DSS01',
                     data: [
-                        <?= number_format((float)($aggregateResults[0]['avg_rata_rata'] ?? 0), 2, '.', '') ?>,
+                        <?= round((float)($aggregateResults[0]['avg_rata_rata'] ?? 0), 2) ?>,
                         <?= TARGET_LEVEL ?>,
-                        <?= TARGET_LEVEL ?> - <?= number_format((float)($aggregateResults[0]['avg_rata_rata'] ?? 0), 2, '.', '') ?>
+                        <?= round(TARGET_LEVEL - (float)($aggregateResults[0]['avg_rata_rata'] ?? 0), 2) ?>
                     ],
                     backgroundColor: 'rgba(13, 110, 253, 0.2)',
                     borderColor: 'rgba(13, 110, 253, 1)',
@@ -342,9 +367,9 @@ flatpickr(tanggalInput, {
                 {
                     label: 'DSS05',
                     data: [
-                        <?= number_format((float)($aggregateResults[1]['avg_rata_rata'] ?? 0), 2, '.', '') ?>,
+                        <?= round((float)($aggregateResults[1]['avg_rata_rata'] ?? 0), 2) ?>,
                         <?= TARGET_LEVEL ?>,
-                        <?= TARGET_LEVEL ?> - <?= number_format((float)($aggregateResults[1]['avg_rata_rata'] ?? 0), 2, '.', '') ?>
+                        <?= round(TARGET_LEVEL - (float)($aggregateResults[1]['avg_rata_rata'] ?? 0), 2) ?>
                     ],
                     backgroundColor: 'rgba(25, 135, 84, 0.2)',
                     borderColor: 'rgba(25, 135, 84, 1)',
@@ -354,10 +379,25 @@ flatpickr(tanggalInput, {
         },
         options: {
             responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + Number(context.parsed.r).toFixed(2);
+                        }
+                    }
+                }
+            },
             scales: {
                 r: {
                     beginAtZero: true,
-                    max: 5
+                    max: 5,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            return Number(value).toFixed(2);
+                        }
+                    }
                 }
             }
         }
